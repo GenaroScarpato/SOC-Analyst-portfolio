@@ -1,0 +1,134 @@
+# Caso 003 — Detección de fuerza bruta contra cuenta local (Windows Security Log)
+
+**Entorno:** Laboratorio casero — Windows 11, log de Seguridad nativo (Event Viewer + PowerShell `Get-WinEvent`)
+**Rol:** Analista SOC (detección y análisis, extremo a extremo)
+**Herramientas:** Auditoría nativa de Windows (`auditpol`), Visor de Eventos, PowerShell
+**Tipo de actividad:** Simulación controlada de ataque de fuerza bruta (autenticación local)
+
+---
+
+## 1. Contexto
+
+Tras los Casos 001 (análisis sobre plataforma SOC simulada) y 002 (detección de ejecución ofuscada con Sysmon), este caso cubre una categoría distinta y muy solicitada en roles de SOC jr: **detección de ataques de autenticación**. Se simuló un ataque de fuerza bruta contra una cuenta local de Windows y se analizó la evidencia generada en el log de Seguridad nativo del sistema operativo — una fuente de datos distinta a Sysmon, igual de crítica en cualquier SOC real.
+
+**Objetivo del laboratorio:** demostrar la capacidad de configurar auditoría de autenticación, generar y reconocer el patrón de un ataque de fuerza bruta (múltiples fallos seguidos de un posible éxito), y diferenciar actividad automatizada de un login legítimo de usuario.
+
+## 2. Preparación del entorno
+
+1. Verificación de la política de auditoría de inicio de sesión con `auditpol`:
+   ```
+   auditpol /get /subcategory:"Inicio de sesión"
+   → Resultado: Aciertos y errores (ya estaba habilitado por defecto)
+   ```
+2. Verificación de la política de bloqueo de cuenta (`net accounts`), para no bloquear la cuenta propia durante la simulación:
+   ```
+   Umbral de bloqueo: 10 intentos
+   Duración de bloqueo: 10 minutos
+   ```
+   Se decidió generar 8 intentos fallidos, dejando margen de seguridad bajo el umbral de bloqueo.
+
+## 3. Actividad simulada
+
+Se utilizó un script en PowerShell que invoca la función nativa de Windows `LogonUser` (vía P/Invoke a `advapi32.dll`) para intentar autenticar al usuario local `genar` con 8 contraseñas incorrectas conocidas (`password1`, `123456`, `admin123`, `qwerty2026`, `letmein`, `test1234`, `genar123`, `contraseña1`), simulando un ataque de diccionario básico:
+
+```powershell
+$signature = @"
+[DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+public static extern bool LogonUser(string lpszUsername, string lpszDomain, string lpszPassword, int dwLogonType, int dwLogonProvider, ref IntPtr phToken);
+"@
+Add-Type -MemberDefinition $signature -Name "Win32LogonUser" -Namespace "Win32Functions"
+
+$usuario = "genar"
+$dominio = "$env:COMPUTERNAME"
+$passwordsFalsas = @("password1","123456","admin123","qwerty2026","letmein","test1234","genar123","contraseña1")
+
+foreach ($pass in $passwordsFalsas) {
+    $token = [IntPtr]::Zero
+    $resultado = [Win32Functions.Win32LogonUser]::LogonUser($usuario, $dominio, $pass, 2, 0, [ref]$token)
+    Write-Host "Intento con password '$pass' -> Resultado: $resultado"
+    Start-Sleep -Milliseconds 500
+}
+```
+
+Resultado de ejecución: los 8 intentos fallaron (`Resultado: False`), generando 8 eventos de logon fallido consecutivos en menos de 6 segundos — un ritmo de intento imposible de reproducir manualmente, característico de un ataque automatizado.
+
+Inmediatamente después, se realizó un login real y legítimo (bloqueo de sesión con `Win+L` y reingreso con la contraseña correcta), para completar el patrón: **fuerza bruta fallida → posible acceso exitoso posterior**, el escenario que un analista SOC necesita saber diferenciar.
+
+## 4. Detección y evidencia recolectada
+
+### Intentos fallidos — Event ID 4625 (x8)
+
+Filtrando el log de Seguridad por ID 4625 y 4624 se obtuvieron **776 eventos en total** en el sistema (incluyendo ruido de logons de servicios), de los cuales 8 correspondían exactamente a la ventana de ejecución del script (07:59:59 p.m. a 08:00:05 p.m.):
+
+```
+Error de una cuenta al iniciar sesión.
+
+Sujeto:
+    Nombre de cuenta:        genar
+    Dominio de cuenta:       HP
+
+Tipo de inicio de sesión:    2 (interactivo)
+
+Cuenta con error de inicio de sesión:
+    Nombre de cuenta:        -   (NULL SID — no llegó a resolver la cuenta destino)
+
+Motivo del error:            Nombre de usuario desconocido o contraseña incorrecta
+Estado:                      0xC000006D
+Subestado:                   0xC000006A
+
+Información de proceso:
+    Nombre de proceso del autor de la llamada:  C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+```
+
+**Dato clave:** el campo *"Nombre de proceso del autor de la llamada"* muestra `powershell.exe` como origen del intento de logon. Esto es altamente anómalo — un inicio de sesión interactivo normal (alguien tipeando su contraseña en la pantalla de bloqueo) se origina desde `winlogon.exe` o `LogonUI.exe`, **nunca desde PowerShell**. Ver un intérprete de scripting como proceso llamador de un logon es una de las señales más claras de automatización/ataque en logs de autenticación.
+
+### Login legítimo posterior — Event ID 4624
+
+Al buscar el evento de éxito correspondiente al reingreso manual, se encontró un hallazgo adicional relevante: el sistema utiliza una **cuenta Microsoft vinculada** (`genaroxx24@hotmail.com`) para la sesión interactiva real, distinta de la cuenta local `genar` que fue el objetivo del script de fuerza bruta:
+
+```
+Se inició sesión correctamente en una cuenta.
+
+Nuevo inicio de sesión:
+    Nombre de cuenta:    genaroxx24@hotmail.com
+    Dominio de cuenta:   MicrosoftAccount
+
+Tipo de inicio de sesión:   11  (credencial en caché, típico de cuentas Microsoft/PIN)
+Nombre de proceso:          C:\Windows\System32\svchost.exe
+Proceso de inicio de sesión: User32  (interacción real de usuario vía interfaz gráfica)
+```
+
+## 5. Análisis comparativo
+
+| Indicador | Intentos de fuerza bruta (4625) | Login legítimo (4624) |
+|---|---|---|
+| Cuenta objetivo | `genar` (cuenta local SAM) | `genaroxx24@hotmail.com` (cuenta Microsoft) |
+| Tipo de logon | 2 (interactivo directo) | 11 (credencial en caché) |
+| Proceso de origen | `powershell.exe` | `svchost.exe` (proceso legítimo de sistema) |
+| Paquete de autenticación | Negotiate vía **Advapi** | Negotiate vía **User32** |
+| Ritmo | 8 intentos en ~6 segundos | Evento único |
+| Resultado | Nombre de cuenta destino no resuelto (NULL SID) | Autenticación exitosa |
+
+**Hallazgo relevante:** el script de fuerza bruta atacó una cuenta local (`genar`) que **no es la que efectivamente protege el acceso interactivo del equipo**, ya que el sistema está configurado con inicio de sesión mediante cuenta Microsoft. En un caso real, esto ilustra la importancia de **mapear correctamente qué cuentas existen y cuáles son realmente explotables** antes de asumir el impacto de un ataque de fuerza bruta — un atacante podría agotar intentos contra una cuenta local sin acercarse al mecanismo real de autenticación del usuario.
+
+## 6. Clasificación y respuesta
+
+- **Clasificación:** actividad simulada controlada (laboratorio propio). En un entorno real, el patrón de 8+ intentos fallidos en segundos, originados desde PowerShell, se clasificaría como **True Positive — intento de fuerza bruta automatizado**.
+- **Acciones que tomaría en un caso real:**
+  - Confirmar si el umbral de bloqueo de cuenta se activó o está por activarse, y si el usuario legítimo podría verse afectado (denegación de servicio por bloqueo).
+  - Correlacionar el proceso de origen (`powershell.exe`) con el usuario y sesión que lo ejecutó — si no fue el propio usuario, investigar cómo se originó ese proceso (¿otro malware, acceso remoto no autorizado?).
+  - Revisar si existen más intentos contra otras cuentas locales del mismo equipo (blast radius).
+  - Si el equipo está en red, revisar el log de Seguridad por intentos remotos (tipo de logon 3 o 10) contra el mismo usuario desde otras IPs.
+  - Recomendar deshabilitar cuentas locales no utilizadas si el equipo usa autenticación por cuenta Microsoft/Azure AD, reduciendo la superficie de ataque.
+
+## 7. Aprendizaje del caso
+
+Este laboratorio mostró que **el campo "proceso llamador" es tan importante como el resultado del evento**: dos intentos de logon pueden compartir tipo (interactivo) y motivo de error, pero el proceso de origen revela si fue un humano tipeando o un script automatizado. También quedó en evidencia que un ataque de fuerza bruta puede fallar en su objetivo estratégico (la cuenta que realmente protege el acceso) sin que eso signifique que la actividad no sea preocupante — vale la pena documentarla y monitorear igual.
+
+## Evidencia visual
+
+![Script de simulación de fuerza bruta ejecutándose](./03-fuerza-bruta-script.png)
+![Visor de eventos filtrado por 4625/4624 mostrando la secuencia de ataque](./04-visor-eventos-4625-4624.png)
+
+---
+*Laboratorio realizado como parte de mi formación práctica en SOC (LetsDefend + Fortinet NSE + Palo Alto SOC Fundamentals). Repositorio de portfolio: https://github.com/GenaroScarpato/SOC-Analyst-portfolio*
