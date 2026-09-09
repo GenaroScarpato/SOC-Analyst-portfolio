@@ -94,5 +94,11 @@ Esta combinación de flags es prácticamente una firma de comportamiento malicio
 
 Este laboratorio permitió entender de punta a punta cómo una técnica de evasión simple (codificación Base64 + ejecución oculta) deja de todos modos una huella clara en los logs del sistema operativo, siempre que exista instrumentación adecuada (Sysmon). También reforzó la importancia de **correlacionar eventos por ProcessGuid** en vez de por ProcessId (que Windows reutiliza y puede llevar a confundir procesos distintos durante la investigación).
 
+## Evidencia visual
+
+![Instalación de Sysmon](./imgs/01-sysmon-install.png)
+![Eventos generándose en el Visor de Eventos](./imgs/02-eventos-generandose.png)
+![Detalle del evento PowerShell con comando ofuscado](./imgs/03-evento-powershell-detalle.png)
+
 ---
-*Laboratorio realizado como parte de mi formación práctica en SOC (LetsDefend + Fortinet NSE + Palo Alto SOC Fundamentals). Repositorio de portfolio: https://github.com/GenaroScarpato/SOC-Analyst-portfolio
+*Laboratorio realizado como parte de mi formación práctica en SOC (LetsDefend + Fortinet NSE + Palo Alto SOC Fundamentals). Repositorio de portfolio: https://github.com/GenaroScarpato/SOC-Analyst-portfolio*
