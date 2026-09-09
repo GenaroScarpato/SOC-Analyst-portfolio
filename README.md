@@ -15,7 +15,8 @@ Cada caso documenta:
 
 | # | Caso | Tipo | Severidad |
 |---|------|------|-----------|
-| 001 | [Windows Shortcut Exploit (ZDI-CAN-25373)](./casos/caso-001-SOC339-windows-shortcut-exploit.md) | Malware | High |
+| 001 | [Windows Shortcut Exploit (ZDI-CAN-25373)](./caso-001-SOC339-windows-shortcut-exploit.md) | Malware | High |
+| 002 | [Ejecución ofuscada de PowerShell (laboratorio propio con Sysmon)](./caso-002-sysmon-powershell-obfuscado.md) | Fileless malware / Living-off-the-land | — |
 
 ## Formación relacionada
 - Fortinet Certified Fundamentals in Cybersecurity (NSE 1-2)
