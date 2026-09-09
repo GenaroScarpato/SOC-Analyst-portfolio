@@ -17,6 +17,7 @@ Cada caso documenta:
 |---|------|------|-----------|
 | 001 | [Windows Shortcut Exploit (ZDI-CAN-25373)](./caso-001-SOC339-windows-shortcut-exploit.md) | Malware | High |
 | 002 | [Ejecución ofuscada de PowerShell (laboratorio propio con Sysmon)](./caso-002-sysmon-powershell-obfuscado.md) | Fileless malware / Living-off-the-land | — |
+| 003 | [Detección de fuerza bruta contra cuenta local (Windows Security Log)](./Caso%20003%20fuerza%20bruta%20windows%20security%20log.md) | Brute Force / Authentication Attack | High |
 
 ## Formación relacionada
 - Fortinet Certified Fundamentals in Cybersecurity (NSE 1-2)
