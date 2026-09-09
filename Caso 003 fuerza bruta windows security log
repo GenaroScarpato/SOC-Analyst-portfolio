@@ -127,8 +127,8 @@ Este laboratorio mostró que **el campo "proceso llamador" es tan importante com
 
 ## Evidencia visual
 
-![Script de simulación de fuerza bruta ejecutándose](./03-fuerza-bruta-script.png)
-![Visor de eventos filtrado por 4625/4624 mostrando la secuencia de ataque](./04-visor-eventos-4625-4624.png)
+![Script de simulación de fuerza bruta ejecutándose](./img/03-fuerza-bruta-script.png)
+![Visor de eventos filtrado por 4625/4624 mostrando la secuencia de ataque](./img/04-visor-eventos-4625-4624.png)
 
 ---
 *Laboratorio realizado como parte de mi formación práctica en SOC (LetsDefend + Fortinet NSE + Palo Alto SOC Fundamentals). Repositorio de portfolio: https://github.com/GenaroScarpato/SOC-Analyst-portfolio*
