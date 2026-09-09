@@ -96,9 +96,9 @@ Este laboratorio permitió entender de punta a punta cómo una técnica de evasi
 
 ## Evidencia visual
 
-![Instalación de Sysmon](./imgs/01-sysmon-install.png)
-![Eventos generándose en el Visor de Eventos](./imgs/02-eventos-generandose.png)
-![Detalle del evento PowerShell con comando ofuscado](./imgs/03-evento-powershell-detalle.png)
+![Instalación de Sysmon](./img/01-sysmon-install.png)
+![Eventos generándose en el Visor de Eventos](./img/02-eventos-generandose.png)
+![Detalle del evento PowerShell con comando ofuscado](./img/03-evento-powershell-detalle.png)
 
 ---
 *Laboratorio realizado como parte de mi formación práctica en SOC (LetsDefend + Fortinet NSE + Palo Alto SOC Fundamentals). Repositorio de portfolio: https://github.com/GenaroScarpato/SOC-Analyst-portfolio*
