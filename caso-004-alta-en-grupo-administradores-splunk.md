@@ -148,17 +148,31 @@ En Splunk, la limpieza de la primera cuenta quedó registrada como 4733 y 4726. 
 
 ## Evidencias
 
-Las capturas están en `img/`:
+## Evidencias
 
-1. Conteo de eventos 4720/4732 en el host: [01-resumen-eventos-4720-4732.png](img/01-resumen-eventos-4720-4732.png)
-2. Detalle XML del 4732 (actor, grupo, SID del miembro): [02-detalle-evento-4732.png](img/02-detalle-evento-4732.png)
-3. Comandos de limpieza en PowerShell: [03-limpieza-powershell.png](img/03-limpieza-powershell.png)
-4. Eventos de limpieza 4733/4726: [04-eventos-limpieza-4733-4726.png](img/04-eventos-limpieza-4733-4726.png)
-5. Alerta con configuración inicial horaria: [05-alerta-inicial-horaria.png](img/05-alerta-inicial-horaria.png)
-6. Alerta ajustada a cron cada cinco minutos: [06-alerta-cron-cada-5-min.png](img/06-alerta-cron-cada-5-min.png)
-7. Búsqueda del 4732 de validación (02:23:31 UTC): [07-busqueda-evento-validacion-4732.png](img/07-busqueda-evento-validacion-4732.png)
-8. Historial con el disparo a las 02:26:45 UTC: [08-historial-disparo-alerta.png](img/08-historial-disparo-alerta.png)
+### 1. Conteo de eventos 4720/4732 en el host
+![Conteo de eventos 4720 y 4732](img/01-resumen-eventos-4720-4732.png)
 
+### 2. Detalle XML del 4732 (actor, grupo, SID del miembro)
+![Detalle XML del evento 4732](img/02-detalle-evento-4732.png)
+
+### 3. Comandos de limpieza en PowerShell
+![Limpieza con PowerShell](img/03-limpieza-powershell.png)
+
+### 4. Eventos de limpieza 4733/4726
+![Eventos 4733 y 4726](img/04-eventos-limpieza-4733-4726.png)
+
+### 5. Alerta con configuración inicial horaria
+![Alerta horaria](img/05-alerta-inicial-horaria.png)
+
+### 6. Alerta ajustada a cron cada cinco minutos
+![Alerta cron cada 5 minutos](img/06-alerta-cron-cada-5-min.png)
+
+### 7. Búsqueda del 4732 de validación (02:23:31 UTC)
+![Búsqueda del evento de validación](img/07-busqueda-evento-validacion-4732.png)
+
+### 8. Historial con el disparo a las 02:26:45 UTC
+![Historial de disparo de la alerta](img/08-historial-disparo-alerta.png)
 > **Nota sobre la captura 06:** la columna "Next scheduled time" de la lista de alertas muestra 05:26:45, con una diferencia de tres horas respecto de los demás horarios del caso. No la uso como evidencia temporal; los horarios del caso provienen de los eventos y del historial de disparos (UTC).
 
 ---
