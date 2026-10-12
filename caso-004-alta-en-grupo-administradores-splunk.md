@@ -167,13 +167,14 @@ En Splunk, la limpieza de la primera cuenta quedó registrada como 4733 y 4726. 
 
 ### 6. Alerta ajustada a cron cada cinco minutos
 ![Alerta cron cada 5 minutos](img/06-alerta-cron-cada-5-min.png)
+> **Nota sobre la captura 06:** la columna "Next scheduled time" de la lista de alertas muestra 05:26:45, con una diferencia de tres horas respecto de los demás horarios del caso. No la uso como evidencia temporal; los horarios del caso provienen de los eventos y del historial de disparos (UTC).
 
 ### 7. Búsqueda del 4732 de validación (02:23:31 UTC)
 ![Búsqueda del evento de validación](img/07-busqueda-evento-validacion-4732.png)
 
 ### 8. Historial con el disparo a las 02:26:45 UTC
 ![Historial de disparo de la alerta](img/08-historial-disparo-alerta.png)
-> **Nota sobre la captura 06:** la columna "Next scheduled time" de la lista de alertas muestra 05:26:45, con una diferencia de tres horas respecto de los demás horarios del caso. No la uso como evidencia temporal; los horarios del caso provienen de los eventos y del historial de disparos (UTC).
+
 
 ---
 
