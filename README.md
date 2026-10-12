@@ -21,7 +21,7 @@ Cada caso documenta:
 ## Formación relacionada
 - Fortinet Certified Fundamentals in Cybersecurity (NSE 1-2)
 - Fortinet Certified Associate in Cybersecurity (NSE 3)
-- Curso SOC Fundamentals — Palo Alto (en curso)
+- Curso SOC Fundamentals — Palo Alto 
 - LetsDefend — SOC Analyst Learning Path (en curso)
 
 ## Contacto
