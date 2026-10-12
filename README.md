@@ -18,10 +18,12 @@ Cada caso documenta:
 | 001 | [Windows Shortcut Exploit (ZDI-CAN-25373)](./caso-001-SOC339-windows-shortcut-exploit.md) | Malware | High |
 | 002 | [Ejecución ofuscada de PowerShell (laboratorio propio con Sysmon)](./caso-002-sysmon-powershell-obfuscado.md) | Fileless malware / Living-off-the-land | — |
 | 003 | [Detección de fuerza bruta contra cuenta local (Windows Security Log)](./caso-003-fuerza-bruta-windows-security-log.md) | Brute Force / Authentication Attack | High |
+| 004 | [Alta en grupo Administradores locales (Splunk, laboratorio propio)](./caso-004-alta-en-grupo-administradores-splunk.md) | Account Manipulation / Privilege Escalation | Alta (si no está autorizado) |
+
 ## Formación relacionada
 - Fortinet Certified Fundamentals in Cybersecurity (NSE 1-2)
 - Fortinet Certified Associate in Cybersecurity (NSE 3)
-- Curso SOC Fundamentals — Palo Alto 
+- Palo Alto Networks Certified Security Operations Professional
 - LetsDefend — SOC Analyst Learning Path (en curso)
 
 ## Contacto
